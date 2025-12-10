@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <title>후원 내역</title>
+    <style>
+        body { font-family: Arial; background:#f8f8f8; padding:20px; }
+        h1 { font-size:28px; }
+        table { width:100%; border-collapse: collapse; background:white; }
+        th, td { border:1px solid #ddd; padding:12px; text-align:center; }
+        th { background:#333; color:white; }
+    </style>
+</head>
+<body>
+
+<h1>후원 내역</h1>
+<table>
+    <thead>
+        <tr>
+            <th>이름</th>
+            <th>금액(원)</th>
+            <th>등급</th>
+        </tr>
+    </thead>
+    <tbody id="list"></tbody>
+</table>
+
+<script>
+// 후원 금액에 따라 등급 계산
+function getRank(amount) {
+    if (amount >= 25000) return "Admin";
+    if (amount >= 15000) return "레드 다이아";
+    if (amount >= 10000) return "다이아";
+    if (amount >= 6000)  return "골드";
+    if (amount >= 4000)  return "플래티넘";
+    if (amount >= 2500)  return "실버";
+    if (amount >= 1000)  return "브론즈";
+    return "일반";
+}
+
+// JSON 파일 불러오기
+fetch("donations.json")
+    .then(response => response.json())
+    .then(data => {
+        const tbody = document.getElementById("list");
+
+        data.forEach(item => {
+            const tr = document.createElement("tr");
+            const rank = getRank(item.amount);
+
+            tr.innerHTML = `
+                <td>${item.name}</td>
+                <td>${item.amount.toLocaleString()}</td>
+                <td>${rank}</td>
+            `;
+
+            tbody.appendChild(tr);
+        });
+    })
+    .catch(err => {
+        console.error("JSON 로드 오류:", err);
+        document.getElementById("list").innerHTML =
+            "<tr><td colspan='3'>donations.json 파일을 찾을 수 없습니다.</td></tr>";
+    });
+</script>
+
+</body>
+</html>

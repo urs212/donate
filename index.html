@@ -1,66 +1,116 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8" />
+    <meta charset="UTF-8">
     <title>후원 내역</title>
     <style>
-        body { font-family: Arial; background:#f8f8f8; padding:20px; }
-        h1 { font-size:28px; }
-        table { width:100%; border-collapse: collapse; background:white; }
-        th, td { border:1px solid #ddd; padding:12px; text-align:center; }
-        th { background:#333; color:white; }
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f0f2f5;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4b6cb7, #182848);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+            font-size: 32px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        }
+
+        .container {
+            width: 90%;
+            max-width: 900px;
+            margin: 40px auto;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            margin-bottom: 20px;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: transform 0.15s;
+        }
+
+        .card:hover {
+            transform: scale(1.02);
+        }
+
+        .name {
+            font-size: 22px;
+            font-weight: 600;
+        }
+
+        .amount {
+            font-size: 18px;
+            opacity: 0.7;
+        }
+
+        .badge {
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-size: 15px;
+            font-weight: 600;
+            color: white;
+        }
+
+        /* 등급 색상 */
+        .Bronze { background: #cd7f32; }
+        .Silver { background: #c0c0c0; color: #222; }
+        .Platinum { background: #9cf; color: #003; }
+        .Gold { background: #ffd700; color: #333; }
+        .Diamond { background: #4bd3ff; }
+        .RedDiamond { background: #ff4b4b; }
+        .Admin { background: #7e00ff; }
+
     </style>
 </head>
 <body>
 
-<h1>후원 내역</h1>
-<table>
-    <thead>
-        <tr>
-            <th>이름</th>
-            <th>금액(원)</th>
-            <th>등급</th>
-        </tr>
-    </thead>
-    <tbody id="list"></tbody>
-</table>
+<div class="header">후원 내역</div>
+<div class="container" id="list"></div>
 
 <script>
-// 후원 금액에 따라 등급 계산
 function getRank(amount) {
-    if (amount >= 25000) return "Admin";
-    if (amount >= 15000) return "레드 다이아";
-    if (amount >= 10000) return "다이아";
-    if (amount >= 6000)  return "골드";
-    if (amount >= 4000)  return "플래티넘";
-    if (amount >= 2500)  return "실버";
-    if (amount >= 1000)  return "브론즈";
-    return "일반";
+    if (amount >= 25000) return { name: "Admin", class: "Admin" };
+    if (amount >= 15000) return { name: "레드 다이아", class: "RedDiamond" };
+    if (amount >= 10000) return { name: "다이아", class: "Diamond" };
+    if (amount >= 6000)  return { name: "골드", class: "Gold" };
+    if (amount >= 4000)  return { name: "플래티넘", class: "Platinum" };
+    if (amount >= 2500)  return { name: "실버", class: "Silver" };
+    if (amount >= 1000)  return { name: "브론즈", class: "Bronze" };
+    return { name: "일반", class: "Normal" };
 }
 
-// JSON 파일 불러오기
 fetch("donations.json")
-    .then(response => response.json())
+    .then(res => res.json())
     .then(data => {
-        const tbody = document.getElementById("list");
+        const wrap = document.getElementById("list");
 
         data.forEach(item => {
-            const tr = document.createElement("tr");
             const rank = getRank(item.amount);
 
-            tr.innerHTML = `
-                <td>${item.name}</td>
-                <td>${item.amount.toLocaleString()}</td>
-                <td>${rank}</td>
+            const card = document.createElement("div");
+            card.className = "card";
+
+            card.innerHTML = `
+                <div>
+                    <div class="name">${item.name}</div>
+                    <div class="amount">${item.amount.toLocaleString()}원</div>
+                </div>
+                <div class="badge ${rank.class}">${rank.name}</div>
             `;
 
-            tbody.appendChild(tr);
+            wrap.appendChild(card);
         });
-    })
-    .catch(err => {
-        console.error("JSON 로드 오류:", err);
-        document.getElementById("list").innerHTML =
-            "<tr><td colspan='3'>donations.json 파일을 찾을 수 없습니다.</td></tr>";
     });
 </script>
 
